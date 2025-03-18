@@ -1,0 +1,24 @@
+// Import the functions you need from the SDKs you need
+import { initializeApp } from 'firebase/app'
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  // apiKey: import.meta.env.VITE_apiKey,
+  // authDomain: import.meta.env.VITE_authDomain,
+  // projectId: import.meta.env.VITE_projectId,
+  // storageBucket: import.meta.env.VITE_storageBucket,
+  // messagingSenderId: import.meta.env.VITE_messagingSenderId,
+  // appId: import.meta.env.VITE_appId,
+
+  apiKey: "AIzaSyCpOiNaoih6028kO0GginYXInTHds5zN0A",
+  authDomain: "solosphare-saumittra.firebaseapp.com",
+  projectId: "solosphare-saumittra",
+  storageBucket: "solosphare-saumittra.firebasestorage.app",
+  messagingSenderId: "675908640153",
+  appId: "1:675908640153:web:d4d888c6f79ce75da10708"
+}
+
+// Initialize Firebase
+export const app = initializeApp(firebaseConfig)
