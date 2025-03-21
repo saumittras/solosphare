@@ -1,9 +1,18 @@
 import { useContext } from 'react'
+import { Link } from 'react-router-dom'
 import logo from '../assets/images/logo.png'
 import { AuthContext } from '../providers/AuthProvider'
-import { Link } from 'react-router-dom'
 const Navbar = () => {
   const { user, logOut } = useContext(AuthContext)
+
+  const handleLogout = async () => {
+    try {
+      await logOut();
+      console.log("User logged out");
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
   return (
     <div className='navbar bg-base-100 shadow-sm container px-4 mx-auto'>
       <div className='flex-1'>
@@ -63,7 +72,7 @@ const Navbar = () => {
               </li>
               <li className='mt-2'>
                 <button
-                  onClick={logOut}
+                  onClick={handleLogout}
                   className='bg-gray-200 block text-center'
                 >
                   Logout
