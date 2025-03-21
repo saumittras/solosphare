@@ -1,45 +1,92 @@
 import axios from 'axios'
 import { useContext, useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 
-import { format } from 'date-fns'
+import { compareAsc, format } from 'date-fns'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { AuthContext } from '../providers/AuthProvider'
 
 const JobDetails = () => {
+  const naviget = useNavigate()
   const [startDate, setStartDate] = useState(new Date())
   const {id} = useParams()
-    const [job, setJobs]=useState({})
-    const{user} = useContext(AuthContext)
-    const {
+  const [job, setJobs]=useState({})
+  const{user} = useContext(AuthContext)
+  const {
     title,
     category, buyer,
     min_price,
     max_price, 
     description,
   deadline} = job;
+  const buyerEmail = job?.buyer?.email
 
-    const fetchJobData = async()=>{
+  const fetchJobData = async()=>{
       const {data} = await axios.get(`${import.meta.env.VITE_API_URL}/job/${id}`)
       setJobs(data)
-      setStartDate(new Date(data.deadline))
+      // setStartDate(new Date(data.deadline))
     }
   
     useEffect(()=>{
       fetchJobData()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[id])
+
+  // Handle form siubmit 
+  const handleBidSubmit =async e =>{
+    e.preventDefault()
+    const form = e.target;
+    const price = form.price.value;
+    const email = user?.email;
+    const comment = form.comment.value;
+    const bidDeadline = startDate;
+    const job_Id = id
+
+// check bid permission 
+if(buyerEmail === email) return toast.error('Action not permitted')
+// check deadline 
+    if(compareAsc(new Date(), new Date(deadline))=== 1)
+      return toast.error('Deadline crossed, Bidding Forbidden')
+    //2. price validation between minimum 
+    if(price>max_price) return toast.error('Offer less or equal to maximum price!')
+    if(compareAsc(new Date(bidDeadline), new Date(deadline))=== 1)
+        return toast.error('Deadline crossed, Bidding Forbidden')
+
+    const bidData = {
+      price, email, comment, bidDeadline, job_Id, title, category, status: 'Pending', buyerEmail: buyerEmail
+    }
+
+    console.table(bidData);
+
+    try{
+      const {data} = await axios.post(`${import.meta.env.VITE_API_URL}/add-bid`, bidData)
+      form.reset()
+      naviget('/my-bids')
+      if(data.insertedId) return toast.success('Bided Successfully!')
+
+        
+      }catch(err){
+        console.log(err)
+        toast.error(err?.response?.data)
+      }
+
+
+  }
   
 
   return (
     <div className='flex flex-col md:flex-row justify-around gap-5  items-center min-h-[calc(100vh-306px)] md:max-w-screen-xl mx-auto '>
+      
       {/* Job Details */}
       <div className='flex-1  px-4 py-7 bg-white rounded-md shadow-md md:min-h-[350px]'>
         <div className='flex items-center justify-between'>
-          <span className='text-sm font-light text-gray-800 '>
+          {
+            deadline && <span className='text-sm font-light text-gray-800 '>
             Deadline: {format(new Date(deadline), 'P')}
           </span>
+          }
           <span className='px-4 py-1 text-xs text-blue-800 uppercase bg-blue-200 rounded-full '>
            {category}
           </span>
@@ -67,6 +114,7 @@ const JobDetails = () => {
             </div>
             <div className='rounded-full object-cover overflow-hidden w-14 h-14'>
               <img
+              referrerPolicy='no-referrer'
                 src={buyer?.photo}
                 alt=''
               />
@@ -77,13 +125,15 @@ const JobDetails = () => {
           </p>
         </div>
       </div>
+      
+      
       {/* Place A Bid Form */}
       <section className='p-6 w-full  bg-white rounded-md shadow-md flex-1 md:min-h-[350px]'>
         <h2 className='text-lg font-semibold text-gray-700 capitalize '>
           Place A Bid
         </h2>
 
-        <form>
+        <form onSubmit={handleBidSubmit}>
           <div className='grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2'>
             <div>
               <label className='text-gray-700 ' htmlFor='price'>
@@ -124,10 +174,10 @@ const JobDetails = () => {
               />
             </div>
             <div className='flex flex-col gap-2 '>
-              <label className='text-gray-700'>Deadline</label>
+              <label className='text-gray-700'>Delivery Deadline</label>
 
               {/* Date Picker Input Field */}
-              <DatePicker disabled
+              <DatePicker 
                 className='border p-2 rounded-md'
                 selected={startDate}
                 onChange={date => setStartDate(date)}
@@ -145,6 +195,7 @@ const JobDetails = () => {
           </div>
         </form>
       </section>
+
     </div>
   )
 }
