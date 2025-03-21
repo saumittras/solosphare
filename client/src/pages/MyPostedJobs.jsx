@@ -26,7 +26,7 @@ const MyPostedJobs = () => {
   const handleDelete =async(id)=>{
     console.log(id)
     try{
-       const {data}= await axiosSecure.delete(`/job/${id}`)
+        const {data}= await axiosSecure.delete(`/job/${id}`)
 
        fetchAllJobs()
        toast.success('Deleted the Job Successfully!')
