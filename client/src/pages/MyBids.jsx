@@ -3,13 +3,15 @@ import axios from "axios"
 import { useContext, useEffect, useState } from "react"
 import toast from "react-hot-toast"
 import BidTableRow from "../components/BidTableRow"
+import useAxiosSecure from "../hooks/useAxiosSecure"
 import { AuthContext } from "../providers/AuthProvider"
 
 const MyBids = () => {
+  const axiosSecure = useAxiosSecure()
   const [bids, setBids] = useState()
   const {user} = useContext(AuthContext)
   const fetchAllBids= async()=>{
-    const {data} = await axios.get(`${import.meta.env.VITE_API_URL}/bids/${user?.email}`)
+    const {data} = await axiosSecure.get(`/bids/${user?.email}`)
     setBids(data)
   }
 
